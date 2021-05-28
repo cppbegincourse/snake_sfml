@@ -39,6 +39,7 @@ int main()
 				window.close();
 		}
 
+		// Draw sprites example
 		// Draw tree sprite
 		treeSprite.setPosition(0, 0);
 		window.draw(treeSprite);
