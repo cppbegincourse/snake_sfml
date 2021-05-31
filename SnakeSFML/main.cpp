@@ -41,7 +41,9 @@ int main()
 
 		// Draw sprites example
 		// Draw tree sprite
-		// Format: <sprite>.setPosition(x, y), where x, y - coordinates in pixels where sprite will be drawn
+		// Format:
+		// SPRITE_OBJECT.setPosition(x, y); where x, y - coordinates in pixels where sprite will be drawn
+		// window.draw(SPRITE_OBJECT);
 		treeSprite.setPosition(0, 0);
 		window.draw(treeSprite);
 
