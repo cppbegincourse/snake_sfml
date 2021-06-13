@@ -4,11 +4,26 @@
 
 using namespace std;
 
+void Init();
+void SetupWindow();
+void InitGameField();
+void InitSnake();
+
+sf::RenderWindow window(sf::VideoMode(960, 960), "Snake");
+
+void SetupWindow()
+{
+	window.setFramerateLimit(60);
+}
+
+void Init()
+{
+	SetupWindow();
+}
+
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode(960, 960), "Snake");
-	window.setFramerateLimit(60);
-
+	Init();
 	bool isRunning = true;
 
 	sf::Texture textureTerrain;
