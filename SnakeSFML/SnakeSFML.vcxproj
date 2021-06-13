@@ -72,6 +72,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
+    <CustomBuildBeforeTargets>Run</CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -96,6 +99,13 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\SFML-2.5.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-main-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>xcopy /y $(SolutionDir)\SFML-2.5.1\bin\*.dll $(TargetDir)</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Copy SFML dll files</Message>
+      <Inputs>$(SolutionDir)\SFML-2.5.1\bin\openal32.dll;%(Inputs)</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -152,6 +162,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\SFML-2.5.1\bin\openal32.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <None Include="..\SFML-2.5.1\bin\sfml-audio-2.dll" />
+    <None Include="..\SFML-2.5.1\bin\sfml-audio-d-2.dll" />
+    <None Include="..\SFML-2.5.1\bin\sfml-graphics-2.dll" />
+    <CopyFileToFolders Include="..\SFML-2.5.1\bin\sfml-graphics-d-2.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <None Include="..\SFML-2.5.1\bin\sfml-network-2.dll" />
+    <None Include="..\SFML-2.5.1\bin\sfml-network-d-2.dll" />
+    <None Include="..\SFML-2.5.1\bin\sfml-system-2.dll" />
+    <CopyFileToFolders Include="..\SFML-2.5.1\bin\sfml-system-d-2.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <None Include="..\SFML-2.5.1\bin\sfml-window-2.dll" />
+    <CopyFileToFolders Include="..\SFML-2.5.1\bin\sfml-window-d-2.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
