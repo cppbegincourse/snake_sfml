@@ -6,43 +6,74 @@ using namespace std;
 
 void Init();
 void SetupWindow();
+void InitSprites();
 void InitGameField();
-void InitSnake();
+void Draw();
+void DrawGameField();
+
+char gameField[15][15];
 
 sf::RenderWindow window(sf::VideoMode(960, 960), "Snake");
+sf::Sprite treeSprite;
+sf::Sprite grassSprite;
+sf::Sprite snakeSprite;
+
+sf::Texture textureTerrain;
 
 void SetupWindow()
 {
 	window.setFramerateLimit(60);
 }
 
+void InitSprites()
+{
+	
+	if (!textureTerrain.loadFromFile("snakeset.png")) {
+		std::cerr << "Can't load texture" << endl;
+		exit(1);
+	}
+
+	treeSprite.setTexture(textureTerrain);
+	treeSprite.setTextureRect(sf::IntRect(0, 0, 64, 64));
+
+	grassSprite.setTexture(textureTerrain);
+	grassSprite.setTextureRect(sf::IntRect(0, 64, 64, 64));
+
+	snakeSprite.setTexture(textureTerrain);
+	snakeSprite.setTextureRect(sf::IntRect(128, 128, 64, 64));
+}
+
+void InitGameField()
+{
+	// Tile codes in gameField array:
+	// '#' char means tree
+	// 's' char means snake
+	// ' ' empty tile, draws it as grass
+
+	for (int row = 0; row < 15; row++)
+	{
+		for (int col = 0; col < 15; col++)
+		{
+			// ' ' empty tile, draws it as grass
+			gameField[row][col] = ' ';
+		}
+	}
+}
+
 void Init()
 {
 	SetupWindow();
+
+	InitSprites();
+
+	InitGameField();
 }
 
 int main()
 {
 	Init();
+
 	bool isRunning = true;
-
-	sf::Texture textureTerrain;
-	if (!textureTerrain.loadFromFile("snakeset.png")) {
-		std::cerr << "Can't load texture" << endl;
-		return 1;
-	}
-
-	sf::Sprite treeSprite;
-	treeSprite.setTexture(textureTerrain);
-	treeSprite.setTextureRect(sf::IntRect(0, 0, 64, 64));
-
-	sf::Sprite grassSprite;
-	grassSprite.setTexture(textureTerrain);
-	grassSprite.setTextureRect(sf::IntRect(0, 64, 64, 64));
-
-	sf::Sprite snakeSprite;
-	snakeSprite.setTexture(textureTerrain);
-	snakeSprite.setTextureRect(sf::IntRect(128, 128, 64, 64));
 
 	while (isRunning)
 	{
@@ -54,30 +85,45 @@ int main()
 				window.close();
 		}
 
-		// Draw sprites example
-		// Draw tree sprite
-		// Format:
-		// SPRITE_OBJECT.setPosition(x, y); where x, y - coordinates in pixels where sprite will be drawn
-		// window.draw(SPRITE_OBJECT);
-		treeSprite.setPosition(0, 0);
-		window.draw(treeSprite);
-
-		// Draw grass sprite
-		grassSprite.setPosition(64, 0);
-		window.draw(grassSprite);
-
-		// Draw grass sprite
-		grassSprite.setPosition(128, 0);
-		window.draw(grassSprite);
-
-		// Draw snake sprite on top of grass
-		snakeSprite.setPosition(128, 0);
-		window.draw(snakeSprite);
-
-		// TODO: Draw game field filled with grass and trees on border
+		Draw();
 
 		window.display();
 	}
 
 	return 0;
+}
+
+void Draw()
+{
+	DrawGameField();
+}
+
+void DrawGameField()
+{
+	for (int row = 0; row < 15; row++)
+	{
+		for (int col = 0; col < 15; col++)
+		{
+			char tile = gameField[row][col];
+
+			if (tile == ' ')
+			{
+				grassSprite.setPosition(col * 64, row * 64);
+				window.draw(grassSprite);
+			}
+			else if (tile == '#')
+			{
+				treeSprite.setPosition(col * 64, row * 64);
+				window.draw(treeSprite);
+			}
+			else if (tile == 's')
+			{
+				grassSprite.setPosition(col * 64, row * 64);
+				window.draw(grassSprite);
+
+				snakeSprite.setPosition(col * 64, row * 64);
+				window.draw(snakeSprite);
+			}
+		}
+	}
 }
