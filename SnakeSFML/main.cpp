@@ -1,17 +1,31 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+#include <chrono>
 
 using namespace std;
 
+chrono::milliseconds elapsedTime;
+chrono::milliseconds timer;
+
 void Init();
+void InitTimer();
 void SetupWindow();
 void InitSprites();
 void InitGameField();
 void Draw();
 void DrawGameField();
+void Update(int dt);
+void MoveSnake();
 
+// Array with tile codes
 char gameField[15][15];
+
+int snakeHeadCol = 8;
+int snakeHeadRow = 4;
+
+const int SNAKE_MOVE_TIME = 300;
+int snakeMoveTimer = SNAKE_MOVE_TIME;
 
 sf::RenderWindow window(sf::VideoMode(960, 960), "Snake");
 sf::Sprite treeSprite;
@@ -54,10 +68,21 @@ void InitGameField()
 	{
 		for (int col = 0; col < 15; col++)
 		{
+			if (col == 14)
+				gameField[row][col] = '#';
+			else
+			{
+
 			// ' ' empty tile, draws it as grass
 			gameField[row][col] = ' ';
+			}
 		}
 	}
+
+	gameField[4][5] = 's';
+	gameField[4][6] = 's';
+	gameField[4][7] = 's';
+	gameField[4][8] = 's';
 }
 
 void Init()
@@ -67,6 +92,13 @@ void Init()
 	InitSprites();
 
 	InitGameField();
+
+	InitTimer();
+}
+
+void InitTimer()
+{
+	timer = std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::system_clock::now().time_since_epoch());
 }
 
 int main()
@@ -77,6 +109,10 @@ int main()
 
 	while (isRunning)
 	{
+		std::chrono::milliseconds newTime = std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::system_clock::now().time_since_epoch());
+		elapsedTime = newTime - timer;
+		timer = newTime;
+
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -85,12 +121,39 @@ int main()
 				window.close();
 		}
 
+		Update(elapsedTime.count());
+
 		Draw();
 
 		window.display();
 	}
 
 	return 0;
+}
+
+void Update(int dt)
+{
+	snakeMoveTimer -= dt;
+
+	if (snakeMoveTimer <= 0)
+	{
+		MoveSnake();
+		snakeMoveTimer = SNAKE_MOVE_TIME;
+	}
+}
+
+void MoveSnake()
+{
+	// Crash to the tree
+	if (gameField[snakeHeadRow][snakeHeadCol + 1] == '#')
+	{
+		cout << "You loose!" << endl;
+		exit(1);
+	}
+
+	gameField[snakeHeadRow][snakeHeadCol - 3] = ' ';
+	snakeHeadCol++;
+	gameField[snakeHeadRow][snakeHeadCol] = 's';
 }
 
 void Draw()
