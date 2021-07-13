@@ -19,7 +19,7 @@ void DrawGameField();
 void Update(int dt);
 void MoveSnake();
 
-const int SNAKE_MOVE_TIME = 300;
+const int SNAKE_MOVE_TIME = 500;
 const int TILE_SIZE = 64;
 
 // Horizontal amount of tiles
@@ -28,7 +28,7 @@ const int GAME_FIELD_SIZE_H = 15;
 const int GAME_FIELD_SIZE_V = 15;
 
 // Array with tile codes
-char gameField[15][15];
+char gameField[GAME_FIELD_SIZE_H][GAME_FIELD_SIZE_V];
 
 int snakeMoveTimer = SNAKE_MOVE_TIME;
 
@@ -39,11 +39,19 @@ sf::Sprite snakeSprite;
 
 sf::Texture textureTerrain;
 
+enum class EDirection {
+	Left,
+	Right,
+	Down,
+	Up
+};
+
 struct SnakeSegment
 {
-	SnakeSegment(int row, int col) :
+	SnakeSegment(int row, int col, EDirection direction = EDirection::Left) :
 		col(col),
-		row(row)
+		row(row),
+		direction(direction)
 	{};
 
 	void Draw()
@@ -53,17 +61,50 @@ struct SnakeSegment
 
 	void Move()
 	{
+		int deltaCol = -1;
+		int deltaRow = 0;
+
+		switch (direction)
+		{
+		case EDirection::Down:
+		{
+			deltaCol = 0;
+			deltaRow = 1;
+			break;
+		}
+		case EDirection::Up:
+		{
+			deltaCol = 0;
+			deltaRow = -1;
+			break;
+		}
+		case EDirection::Left:
+		{
+			deltaCol = -1;
+			deltaRow = 0;
+			break;
+		}
+		case EDirection::Right:
+		{
+			deltaCol = 1;
+			deltaRow = 0;
+			break;
+		}
+		}
+
 		col += deltaCol;
 		row += deltaRow;
 	}
+
+	EDirection direction;
 
 	int col;
 	int row;
 
 	// Delta variables show us direction where snake will move on each frame
 	// Initial moving direction is Left
-	int deltaCol = -1;
-	int deltaRow = 0;
+	//int deltaCol = -1;
+	//int deltaRow = 0;
 };
 
 struct Snake {
@@ -73,6 +114,11 @@ struct Snake {
 		{4, 7},
 		{4, 8},
 	};
+
+	Snake()
+	{
+		SetDirection(EDirection::Down);
+	}
 
 	// Get the first snake segment as head
 	SnakeSegment* head = segments;
@@ -87,22 +133,32 @@ struct Snake {
 	}
 
 	void Move() {
-		snake.head->Move();
+		SnakeSegment tmp = *head;
+		tmp.Move();
 
-		for (int i = 1; i < size; i++)
+		for (int i = size - 1; i > 0; i--)
+		{
+			segments[i] = segments[i - 1];
+		}
+
+		segments[0] = tmp;
+		head = segments;
+	}
+
+	void SetDirection(EDirection direction)
+	{
+		for (int i = size - 1; i > 0; i--)
 		{
 			auto& prevSeg = segments[i - 1];
 			auto& curSeg = segments[i];
 
-			curSeg.deltaCol = prevSeg.deltaCol;
-			curSeg.deltaRow = prevSeg.deltaRow;
-
-			curSeg.Move();
+			curSeg.direction = prevSeg.direction;
 		}
+
+		head->direction = direction;
+
 	}
 } snake;
-
-int snakeSize = 4;
 
 void SetupWindow()
 {
@@ -139,7 +195,7 @@ void InitGameField()
 		for (int col = 0; col < GAME_FIELD_SIZE_H; col++)
 		{
 			if (col == 0 || col == GAME_FIELD_SIZE_H - 1
-				|| row == 0 || row == GAME_FIELD_SIZE_V)
+				|| row == 0 || row == GAME_FIELD_SIZE_V - 1)
 			{
 				gameField[row][col] = '#';
 			}
@@ -151,11 +207,6 @@ void InitGameField()
 			}
 		}
 	}
-
-	/*gameField[4][5] = 's';
-	gameField[4][6] = 's';
-	gameField[4][7] = 's';
-	gameField[4][8] = 's';*/
 }
 
 void Init()
@@ -192,6 +243,23 @@ int main()
 			// "close requested" event: we close the window
 			if (event.type == sf::Event::Closed)
 				window.close();
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			{
+				snake.head->direction = EDirection::Down;
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+			{
+				snake.head->direction = EDirection::Up;
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			{
+				snake.head->direction = EDirection::Left;
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+			{
+				snake.head->direction = EDirection::Right;
+			}
 		}
 
 		Update(elapsedTime.count());
